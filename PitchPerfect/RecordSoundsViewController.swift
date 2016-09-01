@@ -1,5 +1,5 @@
 //
-//  ViewController.swift
+//  RecordSoundViewController.swift
 //  PitchPerfect
 //
 //  Created by Derek Kaknes on 8/29/16.
@@ -17,21 +17,21 @@ class RecordSoundsViewController: UIViewController, AVAudioRecorderDelegate {
     
     var audioRecorder:AVAudioRecorder!
     
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        // Do any additional setup after loading the view, typically from a nib.
-    }
-
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
+    func toggleRecordingButton(recording: Bool) {
+        if (recording) {
+            recordingLabel.text = "Recording in progress"
+            recordButton.enabled = false
+            stopRecordingButton.enabled = true
+        } else if (!recording) {
+            recordingLabel.text = "Tap to Record"
+            recordButton.enabled = true
+            stopRecordingButton.enabled = false
+        }
     }
 
     @IBAction func recordAudio(sender: AnyObject) {
         print("record button was pressed")
-        recordingLabel.text = "Recording in progress"
-        recordButton.enabled = false
-        stopRecordingButton.enabled = true
+        toggleRecordingButton(true)
         
         let dirPath = NSSearchPathForDirectoriesInDomains(.DocumentDirectory, .UserDomainMask, true)[0] as String
         
@@ -53,21 +53,20 @@ class RecordSoundsViewController: UIViewController, AVAudioRecorderDelegate {
 
     @IBAction func stopRecording(sender: AnyObject) {
         print("stopRecording button clicked")
-        stopRecordingButton.enabled = false
-        recordButton.enabled = true
-        recordingLabel.text = "Tap to Record"
+        toggleRecordingButton(false)
         audioRecorder.stop()
         let audioSession = AVAudioSession.sharedInstance()
         try! audioSession.setActive(false)
     }
     override func viewWillAppear(animated: Bool) {
+        super.viewWillAppear(animated)
         stopRecordingButton.enabled = false
     }
     
     func audioRecorderDidFinishRecording(recorder: AVAudioRecorder, successfully flag: Bool) {
         print("AVR finished recording")
         if (flag) {
-            self.performSegueWithIdentifier("stopRecording", sender: audioRecorder.url)
+            performSegueWithIdentifier("stopRecording", sender: audioRecorder.url)
         } else {
             print("Saving audio failed")
         }
